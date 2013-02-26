@@ -9,7 +9,6 @@
 //License File
 
 //****************SYSTEM DEPENDANCIES**************************//
-
 //*****************LOCAL DEPENDANCIES**************************//
 #include"RandomTreePlanner.h"
 //**********************NAMESPACES*****************************//
@@ -28,27 +27,32 @@ RandomTreePlanner::~RandomTreePlanner(void)
      // ensures that there is at least one input state and a ompl::base::Goal object specified
      checkValidity();
      // get a handle to the Goal from the ompl::base::ProblemDefinition member, pdef_
-     base::Goal *goal = this->pdef_->getGoal().get();
+     base::Goal                 *goal = this->pdef_->getGoal().get();
      // get input states with PlannerInputStates helper, pis_
      while (const base::State *st = pis_.nextStart())
      {
-         // st will contain a start state.  Typically this state will
-         // be cloned here and inserted into the Planner's data structure.
+         RTPNode* start_node = new RandomTreePlanner::RTPNode(this->si_);
+         this->node_tree_.push_back(start_node);
      }
-     // if needed, sample states from the goal region (and wait until a state is sampled)
-     //const base::State *st = pis_.nextGoal(ptc);
-     // or sample a new goal state only if available:
-     //const base::State *st = pis_.nextGoal();
-     // periodically check if ptc() returns true.
-     // if it does, terminate planning.
+
+     //If we didn't get any valid start states, we're done
+     if(this->node_tree_.size()==0)
+     {
+    	 OMPL_ERROR("Did not get a valid starting condition!");
+    	 return base::PlannerStatus::INVALID_START;
+     }
+
+     if (!sampler_) sampler_ = si_->allocStateSampler();
+
+     OMPL_INFORM("Starting with %d initial states!", this->node_tree_.size());
+
+     RTPNode*     n_rand = new RTPNode(this->si_);
+     base::State* q_rand = n_rand->node_state_;
+
      while (ptc() == false)
      {
-         // Start planning here.
-         // call routines from SpaceInformation (si_) as needed. i.e.,
-         // si_->allocStateSampler() for sampling,
-         // si_->checkMotion(state1, state2) for state validity, etc...
-         // use the Goal pointer to evaluate whether a sampled state satisfies the goal requirements
-         // use log macros for informative messaging, i.e., logInfo("Planner found a solution!");
+         //Check to see if we should bias to the goal
+
      }
      // When a solution path is computed, save it here
      //pdef_->addSolutionPath(...);
@@ -60,6 +64,9 @@ RandomTreePlanner::~RandomTreePlanner(void)
  {
      Planner::clear();
      // clear the data structures here
+     this->sampler_.reset();
+     this->freeMemory();
+     this->setBias(RTP_DEFAULT_GOAL_BIAS);
  }
  // optional, if additional setup/configuration is needed, the setup() method can be implemented
  void RandomTreePlanner::setup(void)
@@ -74,5 +81,25 @@ RandomTreePlanner::~RandomTreePlanner(void)
      // fill data with the states and edges that were created
      // in the exploration data structure
      // perhaps also fill control::PlannerData
+ }
+
+ void RandomTreePlanner::setBias(double bias)
+ {
+	 this->goal_bias_ = bias;
+ }
+
+ double RandomTreePlanner::getBias() const
+ {
+	 return this->goal_bias_;
+ }
+
+ void RandomTreePlanner::freeMemory()
+ {
+	 for(RandomTreePlanner::node_tree_t::iterator node_itr = this->node_tree_.begin(); node_itr<this->node_tree_.end(); node_itr++)
+	{
+		 if((*node_itr)->node_state_!=NULL) this->si_->freeState((*node_itr)->node_state_);
+		 delete *node_itr;
+	}
+
  }
 
