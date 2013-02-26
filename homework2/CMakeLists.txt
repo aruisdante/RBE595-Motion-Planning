@@ -103,15 +103,16 @@ set(EXECUTABLE_OUTPUT_PATH ${HOMEWORK2_SOURCE_DIR}/bin)
     find_package_handle_standard_args(OMPL DEFAULT_MSG OMPL_LIBRARIES OMPL_INCLUDE_DIRS)
 
 #Build my code
+set(PROJECT "Homework2")
 
 include_directories(${HOMEWORK2_SOURCE_DIR}/include)
 include_directories(${HOMEWORK2_SOURCE_DIR}/src)
 include_directories(${OMPL_INCLUDE_DIRS})
 
-add_library(${PROJECT}_lib src/helpers/example_lib.cpp  ${OMPL_LIBRARIES})
+add_library(lib${PROJECT} src/helpers/RandomTreePlanner.cpp  ${OMPL_LIBRARIES})
 
 
 add_executable(example src/example.cpp)
-target_link_libraries(example ${PROJECT}_lib)
+target_link_libraries(example lib${PROJECT})
 target_link_libraries(example ${OMPL_LIBRARIES})
 
