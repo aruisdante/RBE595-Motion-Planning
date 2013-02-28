@@ -113,10 +113,9 @@ include_directories(${HOMEWORK2_SOURCE_DIR}/src)
 include_directories(${HOMEWORK2_SOURCE_DIR}/cfg)
 include_directories(${OMPL_INCLUDE_DIRS})
 
-add_library(lib${PROJECT} src/helpers/RandomTreePlanner.cpp  ${OMPL_LIBRARIES})
+add_library(lib${PROJECT} src/helpers/RandomTreePlanner.cpp  ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARY})
 
 
-add_executable(example src/example.cpp)
-target_link_libraries(example lib${PROJECT})
-target_link_libraries(example ${OMPL_LIBRARIES})
+add_executable(test_rtp_planner src/test_rtp_planner.cpp)
+target_link_libraries(test_rtp_planner lib${PROJECT} ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARY})
 
