@@ -100,6 +100,7 @@ RandomTreePlanner::~RandomTreePlanner(void)
 		 if((*node_itr)->node_state_!=NULL) this->si_->freeState((*node_itr)->node_state_);
 		 delete *node_itr;
 	}
+	 this->node_tree_.clear();
 
  }
 

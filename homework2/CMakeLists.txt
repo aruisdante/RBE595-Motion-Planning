@@ -105,8 +105,12 @@ set(EXECUTABLE_OUTPUT_PATH ${HOMEWORK2_SOURCE_DIR}/bin)
 #Build my code
 set(PROJECT "Homework2")
 
+#Find boost
+
+
 include_directories(${HOMEWORK2_SOURCE_DIR}/include)
 include_directories(${HOMEWORK2_SOURCE_DIR}/src)
+include_directories(${HOMEWORK2_SOURCE_DIR}/cfg)
 include_directories(${OMPL_INCLUDE_DIRS})
 
 add_library(lib${PROJECT} src/helpers/RandomTreePlanner.cpp  ${OMPL_LIBRARIES})
