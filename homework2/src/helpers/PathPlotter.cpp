@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <ompl/base/State.h>
-#include <ompl/base/spaces/RealVectorStateSpace.h>
+#include <ompl/base/spaces/SE2StateSpace.h>
 //*****************LOCAL DEPENDANCIES**************************//
 #include "PathPlotter.h"
 #include "BenchmarkConfigurationPaths.h"
@@ -31,13 +31,12 @@ bool writeOutState(int num_state, const SimpleMotionPlanningTree::SimplePathNode
 {
 	if(file.is_open())
 	{
-		const ompl::base::State *state =  node->node_state_;
-		const ompl::base::RealVectorStateSpace::StateType* realVectorState =state->as<ompl::base::RealVectorStateSpace::StateType>();
+		const ompl::base::SE2StateSpace::StateType *state =  node->node_state_->as<ompl::base::SE2StateSpace::StateType>();
 		std::stringstream state_info;
 		state_info<<num_state;
-		double x     = (*realVectorState)[0];
-		double y     = (*realVectorState)[1];
-		double theta = (*realVectorState)[2];
+		double x     = state->getX();
+		double y     = state->getY();
+		double theta = state->getYaw();
 
 		//std::cout<<x<<","<<y<<","<<theta<<std::endl;
 
@@ -88,6 +87,37 @@ bool path_utilities::writeOutPath(const SimpleMotionPlanningTree::SimplePathNode
 			{
 				success  &= writeOutState(num_states, next_node, output_file);
 				next_node = next_node->parent_node_;
+			}
+		}
+		output_file.close();
+		return success;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool path_utilities::writeOutTree(const SimpleMotionPlanningTree& tree, int num_states, std::string& state_list, std::string& file_name)
+{
+	std::stringstream file_path;
+	file_path<<RESULT_PATH<<"/"<<file_name<<".txt";
+	//std::cout<<"...attempting to open "<<file_path.str()<<"...";
+	std::ofstream output_file(file_path.str().c_str(), std::ios::out|std::ios::trunc);
+	;
+
+	bool success = true;
+	//std::cout<<"Plot Debug...";
+	if (output_file.is_open())
+	{
+		//std::cout<<"...file was open...";
+		success &= writeOutHeader(state_list, output_file);
+		if(success)
+		{
+			//std::cout<<"...wrote headers...";
+			for (int i = 0; i < tree.size(); ++i)
+			{
+				success  &= writeOutState(num_states, tree.getNode(i), output_file);
 			}
 		}
 		output_file.close();

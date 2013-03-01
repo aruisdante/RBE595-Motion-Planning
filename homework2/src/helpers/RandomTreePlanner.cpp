@@ -132,11 +132,6 @@ base::PlannerStatus RandomTreePlanner::solve(const base::PlannerTerminationCondi
 		approximate = true;
 	}
 
-	//Write out the solution path;
-	std::string filename("Random_Tree_Planner_Results");
-	std::string state_list("x,y,theta");
-	std::cout<<"Plotting Path..."<<(path_utilities::writeOutPath(solution, 3, state_list, filename)?"Succeded":"Failed")<<std::endl;
-
 	if (solution != NULL)
 	{
 		lastGoalMotion_ = solution;
@@ -190,8 +185,15 @@ void RandomTreePlanner::setup(void)
 void RandomTreePlanner::getPlannerData(base::PlannerData &data) const
  {
 	    Planner::getPlannerData(data);
+		//Write out the solution path;
+		std::string filename("Random_Tree_Planner_Results");
+		std::string state_list("x,y,theta");
+		std::cout<<"Plotting Path..."<<(path_utilities::writeOutPath(this->lastGoalMotion_, 3, state_list, filename)?"Succeded":"Failed")<<std::endl;
 
-	    if (lastGoalMotion_!=NULL)
+		std::string tree_filename("Random_Tree_Planner_Tree");
+		std::cout<<"Plotting Tree..."<<(path_utilities::writeOutTree(this->node_tree_, 3, state_list, tree_filename)?"Succeded":"Failed")<<std::endl;
+
+		if (lastGoalMotion_!=NULL)
 	        data.addGoalVertex(base::PlannerDataVertex(lastGoalMotion_->node_state_));
 
 	    for (unsigned int i = 0 ; i < this->node_tree_.size() ; ++i)
