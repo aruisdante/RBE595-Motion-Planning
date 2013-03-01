@@ -104,16 +104,23 @@ set(EXECUTABLE_OUTPUT_PATH ${HOMEWORK2_SOURCE_DIR}/bin)
 
 #Build my code
 set(PROJECT "Homework2")
+set(CFG_PATH "${HOMEWORK2_SOURCE_DIR}/cfg")
+set(RESULT_PATH "${HOMEWORK2_SOURCE_DIR}")
+
+configure_file (
+  "${HOMEWORK2_SOURCE_DIR}/include/cfg/BenchmarkConfigurationPaths.h.in"
+  "${HOMEWORK2_SOURCE_DIR}/bin/BenchmarkConfigurationPaths.h"
+  )
 
 #Find boost
 
-
+include_directories(${HOMEWORK2_SOURCE_DIR}/bin)
 include_directories(${HOMEWORK2_SOURCE_DIR}/include)
 include_directories(${HOMEWORK2_SOURCE_DIR}/src)
 include_directories(${HOMEWORK2_SOURCE_DIR}/cfg)
 include_directories(${OMPL_INCLUDE_DIRS})
 
-add_library(lib${PROJECT} src/helpers/RandomTreePlanner.cpp  ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARY})
+add_library(lib${PROJECT} src/helpers/PathPlotter.cpp src/helpers/MotionPlanningTree.cpp  src/helpers/RandomTreePlanner.cpp ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARY})
 
 
 add_executable(test_rtp_planner src/test_rtp_planner.cpp)

@@ -1,0 +1,24 @@
+/**
+ * @file BenchmarkConfigurationPaths.h
+ *
+ * @date   Feb 28, 2013
+ * @author parallels
+ * @brief \todo
+ */
+
+//License File
+
+#ifndef BENCHMARKCONFIGURATIONPATHS_H_
+#define BENCHMARKCONFIGURATIONPATHS_H_
+
+//****************SYSTEM DEPENDANCIES**************************//
+
+//*****************LOCAL DEPENDANCIES**************************//
+
+//**********************NAMESPACES*****************************//
+
+#define CFG_PATH "@CFG_PATH@"
+#define RESULT_PATH "@RESULT_PATH@"
+
+
+#endif /* BENCHMARKCONFIGURATIONPATHS_H_ */

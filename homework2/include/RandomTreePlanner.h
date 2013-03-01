@@ -16,10 +16,11 @@
 //****************SYSTEM DEPENDANCIES**************************//
 #include <vector>
 #include <ompl/base/Planner.h>
+#include "ompl/geometric/planners/PlannerIncludes.h"
 #include <ompl/util/RandomNumbers.h>
 #include <ompl/tools/config/SelfConfig.h>
 //*****************LOCAL DEPENDANCIES**************************//
-
+#include "MotionPlanningTree.h"
 //**********************NAMESPACES*****************************//
 #define RTP_DEFAULT_GOAL_BIAS 0.5
 
@@ -35,26 +36,14 @@ namespace ompl
     class RandomTreePlanner : public base::Planner
     {
     public:
+    	typedef SimpleMotionPlanningTree::SimplePathNode  Node;
+    	typedef SimpleMotionPlanningTree::SimplePathNode* NodePtr;
     	/**
     	 * @author Adam Panzica
     	 * @brief Constructs a new RandomTreePlanner
     	 * @param si
     	 */
-    	RandomTreePlanner(const base::SpaceInformationPtr& si): base::Planner(si, "Random Tree Planner")
-    	 {
-    		//Set a default goal sampling bias of 0.5
-    		this->goal_bias_                  = RTP_DEFAULT_GOAL_BIAS;
-    	     // the specifications of this planner (ompl::base::PlannerSpecs)
-    		this->specs_.directed             = false;
-    		this->specs_.recognizedGoal       = base::GOAL_SAMPLEABLE_REGION;
-    		this->specs_.optimizingPaths      = false;
-    		this->specs_.multithreaded        = false;
-    	    this->specs_.approximateSolutions = false;
-    		this->specs_.provingSolutionNonExistence = false;
-
-    		//Registers the goal bias as a parameter of the planner
-    		Planner::declareParam<double>("goal_bias", this, &RandomTreePlanner::setBias, &RandomTreePlanner::getBias, "0.:.05:1.");
-    	 }
+    	RandomTreePlanner(const base::SpaceInformationPtr& si);
         virtual ~RandomTreePlanner(void);
         /**
          * @author Adam Panzica
@@ -69,11 +58,9 @@ namespace ompl
          * @brief  Performs any cleanup activities for the planner
          */
         virtual void clear(void);
-        /**
-         * @author Adam Panzica
-         * @brief  Performs any setup activities for the planner
-         */
+
         virtual void setup(void);
+
         /**
          * @author Adam Panzica
          * @brief  Gets the last set of planner data
@@ -88,6 +75,8 @@ namespace ompl
          */
         virtual void setBias(double bias);
 
+        virtual void setRange(double distance);
+
         /**
          * @author Adam Panzica
          * @brief  Gets the bias of selecting the goal point
@@ -95,28 +84,12 @@ namespace ompl
          */
         virtual double getBias() const;
 
+        virtual double getRange() const;
+
+
     protected:
-        /**
-         * The node type that will be stored in the planer's tree. Holds a state and a pointer to a parent
-         */
-        class RTPNode
-        {
-        public:
-        	/**
-        	 * Empty constructor
-        	 */
-        	RTPNode():node_state_(NULL), parent_node_(NULL){};
-        	/**
-        	 * @author Adam Panzica
-        	 * @brief  Constructs a new RTPNode wth a given space information for pre-allocating a state
-        	 * @param si
-        	 */
-        	RTPNode(const base::SpaceInformationPtr& si): node_state_(si->allocState()), parent_node_(NULL){};
-        	virtual ~RTPNode(){};
-        	base::State*   node_state_;
-        	RTPNode*       parent_node_;
-        };
-        typedef std::vector<RTPNode*> node_tree_t;
+
+        double maxDistance_;
 
         /**
          * Cleans up the memory use for the tree
@@ -138,7 +111,9 @@ namespace ompl
          */
         RNG ran_gen_;
 
-        node_tree_t node_tree_;
+        SimpleMotionPlanningTree node_tree_;
+
+        NodePtr  lastGoalMotion_;
     };
 }
 
