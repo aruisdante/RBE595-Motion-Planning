@@ -1,3 +1,6 @@
+#Build folder
+bin/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -11,3 +14,16 @@
 *.lai
 *.la
 *.a
+
+#CMake stuff
+*CMakeFiles/
+*.cmake
+*CMakeCache*
+
+#Back files
+*~
+
+#eclipse stuff
+*.cproject
+*.pyproject
+*.project
