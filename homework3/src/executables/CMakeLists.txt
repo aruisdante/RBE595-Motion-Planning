@@ -1,0 +1,2 @@
+add_executable(pendulum_system_benchmark PendulumSystemBenchmark.cpp)
+target_link_libraries(pendulum_system_benchmark pendsys ${OMPL_LIBRARIES} ${OMPLAPP_LIBRARY})

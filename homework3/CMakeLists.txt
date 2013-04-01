@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 project (HOMEWORK3)
 
 #Set lib/exe output paths
-set(LIBRARY_OUTPUT_PATH ${HOMEWORK2_SOURCE_DIR}/lib)
-set(EXECUTABLE_OUTPUT_PATH ${HOMEWORK2_SOURCE_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${HOMEWORK3_SOURCE_DIR}/lib)
+set(EXECUTABLE_OUTPUT_PATH ${HOMEWORK3_SOURCE_DIR}/bin)
 
 # - Try to find the OMPL library
     # Once done this will define:
