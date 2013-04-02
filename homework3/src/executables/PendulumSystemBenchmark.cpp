@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
 void optionalPostRunEvent(const ob::PlannerPtr &planner, ot::Benchmark::RunProperties &run)
 {
-    std::string path_file_name("solution_path_resutls.csv");
+    std::string path_file_name("solution_path_resutls.txt");
     std::ofstream path_file(path_file_name.c_str());
     ob::PlannerData data(planner->getSpaceInformation());
     planner->getPlannerData(data);
@@ -60,8 +60,8 @@ void pendulumWithSimpleSetup()
 
     // set the bounds for the control space
     ob::RealVectorBounds cbounds(1);
-    cbounds.setLow(-0.1);
-    cbounds.setHigh(0.1);
+    cbounds.setLow(-2.0);
+    cbounds.setHigh(2.0);
 
     cspace->as<homework3::PendulumControlSpace>()->setBounds(cbounds);
 
@@ -73,6 +73,7 @@ void pendulumWithSimpleSetup()
 
     //Build ODE solver
     oc::ODESolverPtr odeSolver(new oc::ODEBasicSolver<> (ss.getSpaceInformation(), &homework3::pendulumODE));
+    odeSolver->setIntegrationStepSize(0.01);
     ss.setStatePropagator(oc::ODESolver::getStatePropagator(odeSolver, &homework3::pendulumPostPropagate));
 
     /// create a start state

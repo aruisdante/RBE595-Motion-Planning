@@ -42,10 +42,6 @@ public:
 
 };
 
-void printCtrCSV(const oc::Control* control, std::ofstream stream);
-
-//void printCtrlCSV(const oc::Control& c, std::ofstream& stream);
-
 class PendulumStateSpace : public ob::CompoundStateSpace
 {
 public:
@@ -113,6 +109,7 @@ inline void pendulumPostPropagate(const ob::State* state, const oc::Control* con
     // Ensure that the pendulum's theta is between 0-2*Pi
     PendulumStateSpace::StateType& s = *result->as<PendulumStateSpace::StateType>();
     SO2.enforceBounds(s[0]);
+}
 }
 
 #endif /* PENDULUMSYSTEM_H_ */

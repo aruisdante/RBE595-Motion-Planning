@@ -51,8 +51,6 @@ using namespace homework3;
 //    SO2.enforceBounds(s[0]);
 //}
 
-void processControlToken(std::string& line_in, double& tau);
-
 PendulumControlSpace::PendulumControlSpace(const ob::StateSpacePtr &stateSpace): oc::RealVectorControlSpace(stateSpace, 1)
 {
     this->setName("PendulumControl"+getName());
