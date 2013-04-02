@@ -84,8 +84,8 @@ void pendulumWithSimpleSetup()
     req.displayProgress = true;
     req.useThreads      = false;
 
-    b.addPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
     b.addPlanner(ob::PlannerPtr(new homework3::RG_RRT(ss.getSpaceInformation())));
+    b.addPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
     b.setExperimentName(benchmark_name);
     b.benchmark(req);
     b.saveResultsToFile("Pendulum_System_Results");
@@ -175,14 +175,14 @@ void carWithSimpleSetup()
     //b.setPostRunEvent(boost::bind(&carPostRunEvent, _1, _2));
 
     ot::Benchmark::Request req;
-    req.maxTime         = 10.0;
+    req.maxTime         = 20.0;
     req.maxMem          = 1000.0;
     req.runCount        = 10;
     req.displayProgress = true;
-    req.useThreads      = false;
+    req.useThreads      = true;
 
-    b.addPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
     b.addPlanner(ob::PlannerPtr(new homework3::RG_RRT(ss.getSpaceInformation())));
+    b.addPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
     b.setExperimentName(benchmark_name);
     std::cout<<"Running Benchmark..."<<std::endl;
     b.benchmark(req);

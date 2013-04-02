@@ -39,6 +39,8 @@
 
 #include <ompl/control/planners/PlannerIncludes.h>
 #include <ompl/datastructures/NearestNeighbors.h>
+#include <ompl/control/spaces/RealVectorControlSpace.h>
+#include <ompl/base/spaces/RealVectorStateSpace.h>
 
 using namespace ompl;
 using namespace ompl::control;
@@ -136,16 +138,68 @@ namespace homework3
                 }
 
                 /** \brief Constructor that allocates memory for the state and the control */
-                Motion(const SpaceInformation *si) : state(si->allocState()), control(si->allocControl()), steps(0), parent(NULL)
+                Motion(const SpaceInformation *si) : si(si), state(si->allocState()), control(si->allocControl()), steps(0), parent(NULL)
                 {
                 }
 
                 ~Motion(void)
                 {
+//                    for(int i=0; i<reachable_states.size(); i++)
+//                    {
+//                        if(si!=NULL)
+//                        {
+//                            if(reachable_states.at(i)!=NULL)
+//                            {
+//                                si->freeState(reachable_states.at(i));
+//                            }
+//                        }
+//                    }
+//                    reachable_states.clear();
                 }
+
+                void generateReachability()
+                {
+                    //std::cout<<"Generating Reachability for state...";
+                    const base::StateValidityCheckerPtr checker = si->getStateValidityChecker();
+                    control::RealVectorControlSpace* ctrls = si->getControlSpace()->as<control::RealVectorControlSpace>();
+                    const base::RealVectorBounds bounds = ctrls->getBounds();
+                    double min_ctrl = bounds.low.at(0);
+                    double max_ctrl = bounds.high.at(0);
+                    double slope    = (max_ctrl-min_ctrl)/10.0;
+                    //std::cout<<"Found Control Bounds of "<<min_ctrl<<","<<max_ctrl<<std::endl;
+                    //Build the reachability set
+                    for(int i=0; i<10; i++)
+                    {
+                        //std::cout<<"Building a new reachability state "<<std::endl;
+                        reachable_states.push_back(si->allocState());
+                        control::Control* c = si->allocControl();
+                        c->as<control::RealVectorControlSpace::ControlType>()->values[0] = slope*(double)i+min_ctrl;
+                        //std::cout<<"Calculated Control value of "<<c->as<control::RealVectorControlSpace::ControlType>()->values[0]<<std::endl;
+                        si->getStatePropagator()->propagate(this->state,control,si->getPropagationStepSize()*10,reachable_states.at(i));
+                        //std::cout<<"Propogated Forwards in time... "<<std::endl;
+                        si->freeControl(c);
+                    }
+
+                    //Make sure all of the values in the reachability set were valid states
+                    //std::cout<<"Trimming to only valid states, from size "<<reachable_states.size()<<"... "<<std::endl;
+                    for(int i=reachable_states.size()-1; i>=0; i--)
+                    {
+                        if(!checker->isValid(reachable_states.at(i)))
+                        {
+                            si->freeState(reachable_states.at(i));
+                            reachable_states.pop_back();
+                        }
+                    }
+                    //std::cout<<"Reachable States Trimmed to "<<reachable_states.size()<<std::endl;
+
+                }
+
+                const SpaceInformation* si;
 
                 /** \brief The state contained by the motion */
                 base::State       *state;
+
+                std::vector<base::State*> reachable_states;
 
                 /** \brief The control contained by the motion */
                 Control           *control;
@@ -163,7 +217,18 @@ namespace homework3
             /** \brief Compute distance between motions (actually distance between contained states) */
             double distanceFunction(const Motion* a, const Motion* b) const
             {
-                return si_->distance(a->state, b->state);
+                double normal_distance = si_->distance(a->state, b->state);
+                double reachable_distance = std::numeric_limits<double>::infinity();
+                for(int i=0; i<a->reachable_states.size(); i++)
+                {
+                    double test_dist = si_->distance(a->reachable_states.at(i), b->state);
+                    if(test_dist<reachable_distance && test_dist<normal_distance)
+                    {
+                        reachable_distance = test_dist;
+                    }
+                }
+
+                return reachable_distance;
             }
 
             /** \brief State sampler */

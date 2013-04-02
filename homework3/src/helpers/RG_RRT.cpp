@@ -39,7 +39,7 @@
 #include <ompl/tools/config/SelfConfig.h>
 #include <limits>
 using namespace homework3;
-RG_RRT::RG_RRT(const SpaceInformationPtr &si) : base::Planner(si, "RRT")
+RG_RRT::RG_RRT(const SpaceInformationPtr &si) : base::Planner(si, "RG_RRT")
 {
     specs_.approximateSolutions = true;
     siC_ = si.get();
@@ -67,6 +67,7 @@ void RG_RRT::setup(void)
 
 void RG_RRT::clear(void)
 {
+
     Planner::clear();
     sampler_.reset();
     controlSampler_.reset();
@@ -74,23 +75,30 @@ void RG_RRT::clear(void)
     if (nn_)
         nn_->clear();
     lastGoalMotion_ = NULL;
+
 }
 
 void RG_RRT::freeMemory(void)
 {
+
     if (nn_)
     {
-        std::vector<Motion*> motions;
-        nn_->list(motions);
-        for (unsigned int i = 0 ; i < motions.size() ; ++i)
-        {
-            if (motions[i]->state)
-                si_->freeState(motions[i]->state);
-            if (motions[i]->control)
-                siC_->freeControl(motions[i]->control);
-            delete motions[i];
-        }
-    }
+//        std::vector<Motion*> motions;
+//        nn_->list(motions);
+//        for (unsigned int i = 0 ; i < motions.size()  ; ++i)
+//        {
+//            if (motions[i]->state)
+//            {
+//               si_->freeState(motions[i]->state);
+//            }
+//            if (motions[i]->control)
+//            {
+//                siC_->freeControl(motions[i]->control);
+//            }
+//            delete motions[i];
+//            std::cout<<"Motion Freed"<<std::endl;
+//        }
+   }
 }
 
 ompl::base::PlannerStatus RG_RRT::solve(const base::PlannerTerminationCondition &ptc)
@@ -99,11 +107,13 @@ ompl::base::PlannerStatus RG_RRT::solve(const base::PlannerTerminationCondition 
     base::Goal                   *goal = pdef_->getGoal().get();
     base::GoalSampleableRegion *goal_s = dynamic_cast<base::GoalSampleableRegion*>(goal);
 
+
     while (const base::State *st = pis_.nextStart())
     {
         Motion *motion = new Motion(siC_);
         si_->copyState(motion->state, st);
         siC_->nullControl(motion->control);
+        motion->generateReachability();
         nn_->add(motion);
     }
 
@@ -137,6 +147,7 @@ ompl::base::PlannerStatus RG_RRT::solve(const base::PlannerTerminationCondition 
         else
             sampler_->sampleUniform(rstate);
 
+
         /* find closest state in the tree */
         Motion *nmotion = nn_->nearest(rmotion);
 
@@ -145,6 +156,7 @@ ompl::base::PlannerStatus RG_RRT::solve(const base::PlannerTerminationCondition 
 
         if (addIntermediateStates_)
         {
+
             // this code is contributed by Jennifer Barry
             std::vector<base::State *> pstates;
             cd = siC_->propagateWhileValid(nmotion->state, rctrl, cd, pstates, true);
@@ -165,6 +177,8 @@ ompl::base::PlannerStatus RG_RRT::solve(const base::PlannerTerminationCondition 
                     motion->steps = 1;
                     motion->parent = lastmotion;
                     lastmotion = motion;
+                    motion->generateReachability();
+
                     nn_->add(motion);
                     double dist = 0.0;
                     solved = goal->isSatisfied(motion->state, &dist);
@@ -203,6 +217,7 @@ ompl::base::PlannerStatus RG_RRT::solve(const base::PlannerTerminationCondition 
                 siC_->copyControl(motion->control, rctrl);
                 motion->steps = cd;
                 motion->parent = nmotion;
+                motion->generateReachability();
 
                 nn_->add(motion);
                 double dist = 0.0;
