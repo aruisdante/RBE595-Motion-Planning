@@ -35,11 +35,12 @@ int main(int argc, char **argv)
 
 void optionalPostRunEvent(const ob::PlannerPtr &planner, ot::Benchmark::RunProperties &run)
 {
-    std::string path_file_name("solution_path_resutls.txt");
+    std::string path_file_name("solution_path_results.txt");
+    std::string data_file_name("solution_data_results.txt");
     std::ofstream path_file(path_file_name.c_str());
+    std::ofstream data_file(data_file_name.c_str());
     ob::PlannerData data(planner->getSpaceInformation());
     planner->getPlannerData(data);
-
     planner->getProblemDefinition()->getSolutionPath()->print(path_file);
 }
 
