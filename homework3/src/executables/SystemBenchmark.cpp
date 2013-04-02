@@ -21,6 +21,7 @@
 //************ LOCAL DEPENDANCIES ****************//
 #include <homework3/PendulumSystem.h>
 #include <homework3/CarSystem.h>
+#include <homework3/RG_RRT.h>
 //***********    NAMESPACES     ****************//
 namespace ob = ompl::base;
 namespace oc = ompl::control;
@@ -84,6 +85,7 @@ void pendulumWithSimpleSetup()
     req.useThreads      = false;
 
     b.addPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
+    b.addPlanner(ob::PlannerPtr(new homework3::RG_RRT(ss.getSpaceInformation())));
     b.setExperimentName(benchmark_name);
     b.benchmark(req);
     b.saveResultsToFile("Pendulum_System_Results");
@@ -180,6 +182,7 @@ void carWithSimpleSetup()
     req.useThreads      = false;
 
     b.addPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
+    b.addPlanner(ob::PlannerPtr(new homework3::RG_RRT(ss.getSpaceInformation())));
     b.setExperimentName(benchmark_name);
     std::cout<<"Running Benchmark..."<<std::endl;
     b.benchmark(req);
