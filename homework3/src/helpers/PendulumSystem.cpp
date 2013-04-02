@@ -51,9 +51,20 @@ using namespace homework3;
 //    SO2.enforceBounds(s[0]);
 //}
 
+void processControlToken(std::string& line_in, double& tau);
+
 PendulumControlSpace::PendulumControlSpace(const ob::StateSpacePtr &stateSpace): oc::RealVectorControlSpace(stateSpace, 1)
 {
+    this->setName("PendulumControl"+getName());
 }
+
+void printCtrCSV(const oc::Control* control, std::ofstream& stream)
+{
+    std::stringstream s;
+    s<<control->as<oc::RealVectorControlSpace::ControlType>()->values[0];
+    stream<<s.str()<<std::endl;
+}
+
 
 PendulumStateSpace::StateType::StateType() : CompoundStateSpace::StateType(){}
 
@@ -92,4 +103,11 @@ void PendulumStateSpace::setBounds(const ob::RealVectorBounds &bounds)
 const ob::RealVectorBounds& PendulumStateSpace::getBounds() const
 {
     return as<ob::RealVectorStateSpace>(0)->getBounds();
+}
+
+void PendulumStateSpace::StateType::printCSV(std::ofstream& stream) const
+{
+    std::stringstream s;
+    s<<this->getTheta()<<","<<this->getOmega()<<std::endl;
+    s<<s.str();
 }

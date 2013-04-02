@@ -19,6 +19,8 @@
 #include <ompl/control/ODESolver.h>
 #include <ompl/config.h>
 #include<ompl/base/spaces/SO2StateSpace.h>
+#include<fstream>
+#include<ostream>
 //************ LOCAL DEPENDANCIES ****************//
 
 //***********    NAMESPACES     ****************//
@@ -40,6 +42,10 @@ public:
 
 };
 
+void printCtrCSV(const oc::Control* control, std::ofstream stream);
+
+//void printCtrlCSV(const oc::Control& c, std::ofstream& stream);
+
 class PendulumStateSpace : public ob::CompoundStateSpace
 {
 public:
@@ -57,6 +63,8 @@ public:
         void setTheta(double theta);
 
         void setOmega(double omega);
+
+        void printCSV(std::ofstream& stream) const;
     };
 
 
@@ -65,12 +73,15 @@ public:
     virtual void setBounds(const ob::RealVectorBounds &bounds);
 
     virtual const ob::RealVectorBounds& getBounds() const;
+
 };
+
+
 
 inline void pendulumODE(const oc::ODESolver::StateType& q, const oc::Control* c, oc::ODESolver::StateType& qdot)
 {
     //Get control
-    const double *u = c->as<ompl::control::RealVectorControlSpace::ControlType>()->values;
+    const double *u = c->as<oc::RealVectorControlSpace::ControlType>()->values;
     const double tau = u[0];
 
     //Get states
@@ -102,8 +113,6 @@ inline void pendulumPostPropagate(const ob::State* state, const oc::Control* con
     // Ensure that the pendulum's theta is between 0-2*Pi
     PendulumStateSpace::StateType& s = *result->as<PendulumStateSpace::StateType>();
     SO2.enforceBounds(s[0]);
-}
-
 }
 
 #endif /* PENDULUMSYSTEM_H_ */

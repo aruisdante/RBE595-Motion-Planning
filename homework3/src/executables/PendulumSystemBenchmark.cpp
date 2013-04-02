@@ -25,16 +25,26 @@ namespace ob = ompl::base;
 namespace oc = ompl::control;
 namespace ot = ompl::tools;
 
-void planWithSimpleSetup(void);
+void pendulumWithSimpleSetup(void);
 
 int main(int argc, char **argv)
 {
 	std::cout<<"Adam Panzica Homework 3:"<<std::endl<<"Running Pendulum System Benchmark!"<<std::endl;
-    planWithSimpleSetup();
+    pendulumWithSimpleSetup();
+}
+
+void optionalPostRunEvent(const ob::PlannerPtr &planner, ot::Benchmark::RunProperties &run)
+{
+    std::string path_file_name("solution_path_resutls.csv");
+    std::ofstream path_file(path_file_name.c_str());
+    ob::PlannerData data(planner->getSpaceInformation());
+    planner->getPlannerData(data);
+
+    planner->getProblemDefinition()->getSolutionPath()->print(path_file);
 }
 
 
-void planWithSimpleSetup(void)
+void pendulumWithSimpleSetup()
 {
     /// construct the state space we are planning in
     ob::StateSpacePtr space(new homework3::PendulumStateSpace());
@@ -79,20 +89,10 @@ void planWithSimpleSetup(void)
     ss.setStartAndGoalStates(start, goal, 0.05);
     ss.setPlanner(ob::PlannerPtr(new oc::RRT(ss.getSpaceInformation())));
     ss.setup();
-//    ob::PlannerStatus solved = ss.solve(10.0);
-//    if (solved)
-//    {
-//        std::cout << "Found solution:" << std::endl;
-//        /// print the path to screen and file
-//        std::ofstream print_file("solution_path.txt");
-//        ss.getSolutionPath().print(std::cout);
 
-//        print_file.close();
-//    }
-//    else
-//        std::cout << "No solution found" << std::endl;
     std::string benchmark_name("Pendulm_System_Benchmark");
     ot::Benchmark b(ss, benchmark_name);
+    b.setPostRunEvent(boost::bind(&optionalPostRunEvent, _1, _2));
 
     ot::Benchmark::Request req;
     req.maxTime         = 10.0;
